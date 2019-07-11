@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+    redis:
+        build: .
+        ports:
+            - 6379:6379
+        restart: always
+        volumes:
+            - /data/lib/redis:/data
+            - /data/logs/redis:/var/log/redis
+        labels:
+            container_group: red-packet-redis
+
+    redis_exporter:
+        image: oliver006/redis_exporter
+        ports:
+            - 9121:9121
+        restart: always
+        environment:
+            - REDIS_ADDR=redis://redis:6379
+            - REDIS_PASSWORD=xxxxxx
+            - SERVICE_9121_NAME=redis_exporter
+            - SERVICE_9121_TAGS=redis-prometheus-target
+        labels:
+            container_group: red-packet-redis
+        depends_on:
+            - redis
+        links:
+            - redis:redis

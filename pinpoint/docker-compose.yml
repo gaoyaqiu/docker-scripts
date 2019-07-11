@@ -1,0 +1,109 @@
+version: "3.6"
+
+services:
+  pinpoint-hbase:
+    build:
+      context: ./pinpoint-hbase/
+      dockerfile: Dockerfile
+      args:
+        - PINPOINT_VERSION=${PINPOINT_VERSION}
+
+    container_name: "${PINPOINT_HBASE_NAME}"
+
+    volumes:
+      - ./home/pinpoint/hbase
+      - ./home/pinpoint/zookeeper
+    expose:
+      # zookeeper
+      - "2181"
+      # HBase Master API port
+      - "60000"
+      # HBase Master Web UI
+      - "16010"
+      # Regionserver API port
+      - "60020"
+      # HBase Regionserver web UI
+      - "16030"
+    ports:
+      - "${EXTERNAL_HBASE_PORT:-2181}:2181"
+      - "60000:60000"
+      - "16010:16010"
+      - "60020:60020"
+      - "16030:16030"
+    restart: always
+  pinpoint-collector:
+    build:
+      context: ./pinpoint-collector/
+      dockerfile: Dockerfile
+      args:
+        - PINPOINT_VERSION=${PINPOINT_VERSION}
+
+    container_name: "${PINPOINT_COLLECTOR_NAME}"
+
+    depends_on:
+      - pinpoint-hbase
+    restart: always
+    expose:
+      - "9994"
+      - "9995"
+      - "9996"
+    ports:
+      - "${COLLECTOR_RECEIVER_BASE_PORT:-9994}:9994"
+      - "${COLLECTOR_RECEIVER_STAT_UDP_PORT:-9995}:9995/tcp"
+      - "${COLLECTOR_RECEIVER_SPAN_UDP_PORT:-9996}:9996/tcp"
+      - "${COLLECTOR_RECEIVER_STAT_UDP_PORT:-9995}:9995/udp"
+      - "${COLLECTOR_RECEIVER_SPAN_UDP_PORT:-9996}:9996/udp"
+    environment:
+      - CLUSTER_ENABLE=${CLUSTER_ENABLE}
+      - CLUSTER_ZOOKEEPER_ADDRESS=${CLUSTER_ZOOKEEPER_ADDRESS}
+      - HBASE_HOST=${HBASE_HOST}
+      - HBASE_PORT=${HBASE_PORT}
+      - FLINK_CLUSTER_ENABLE=${FLINK_CLUSTER_ENABLE}
+      - FLINK_CLUSTER_ZOOKEEPER_ADDRESS=${FLINK_CLUSTER_ZOOKEEPER_ADDRESS}
+      - DEBUG_LEVEL=${COLLECTOR_DEBUG_LEVEL}
+
+  #zookeepers
+  zoo1:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo1
+    container_name: zookeeper_1
+    volumes:
+      - /data/pinpoint-volumes/zookeeper/zoo1/data:/data
+      - /data/pinpoint-volumes/zookeeper/zoo1/datalog:/datalog
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888
+    
+  pinpoint-web:
+    build:
+      context: ./pinpoint-web/
+      dockerfile: Dockerfile
+      args:
+        - PINPOINT_VERSION=${PINPOINT_VERSION}
+
+    container_name: "${PINPOINT_WEB_NAME}"
+
+    depends_on:
+      - pinpoint-hbase
+    restart: always
+    expose:
+      - "8080"
+      - "9997"
+    ports:
+      - "9997:9997"
+      - "${WEB_PAGE_PORT:-8080}:8080"
+    environment:
+      - CLUSTER_ENABLE=${CLUSTER_ENABLE}
+      - CLUSTER_ZOOKEEPER_ADDRESS=${CLUSTER_ZOOKEEPER_ADDRESS}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ANALYTICS=${ANALYTICS}
+      - HBASE_HOST=${HBASE_HOST}
+      - HBASE_PORT=${HBASE_PORT}
+      - DEBUG_LEVEL=${WEB_DEBUG_LEVEL}
+      - CONFIG_SHOW_APPLICATIONSTAT=${CONFIG_SHOW_APPLICATIONSTAT}
+      - BATCH_ENABLE=${BATCH_ENABLE}
+      - BATCH_SERVER_IP=${BATCH_SERVER_IP}
+      - BATCH_FLINK_SERVER=${BATCH_FLINK_SERVER}
+    volumes:
+    - /data/pinpoint-volumes/logs/pinpoint:/usr/local/tomcat/logs
