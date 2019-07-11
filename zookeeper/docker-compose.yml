@@ -1,0 +1,12 @@
+version: "3.6"
+
+services:
+  #zookeepers
+  zoo1:
+    image: zookeeper:3.4
+    restart: always
+    container_name: sentinel_zookeeper_1
+    volumes:
+      - ./data:/data
+    ports:
+      - "2181:2181"
