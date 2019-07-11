@@ -1,0 +1,12 @@
+version: '3'
+services:
+  filebeat:
+    image: filebeat:6.5.4
+    container_name: filebeat
+    network_mode: "host"
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./image/Dockerfile
+    volumes:
+      - /data/logs:/data/logs

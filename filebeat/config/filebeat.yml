@@ -1,0 +1,38 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /data/logs/cdp/*/*.log
+  fields_under_root: true
+  fields:
+    type: crs-cdp-backend-json-log
+  multiline.pattern: '^\{'
+  multiline.negate: true
+  multiline.match: after
+
+- type: log
+  enabled: true
+  paths:
+  - /data/logs/nginx/xxx_access_*.log
+  fields_under_root: true
+  fields:
+    type: crs-cdp-nginx-access-json-log
+
+- type: log
+  enabled: true
+  paths:
+  - /data/logs/nginx/xxx_error.log
+  fields_under_root: true
+  fields:
+    type: crs-cdp-nginx-error-log
+
+
+output.kafka:
+    partition.round_robin:
+      reachable_only: false
+    enabled: true
+    hosts: ["xxxx:9092"]
+    topic: '%{[type]}'
+    required_acks: 1
+    compression: gzip
+    max_message_bytes: 1000000
