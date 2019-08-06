@@ -5,10 +5,6 @@ fail() {
   exit
 }
 
-echo "run docker service: consul"
-echo
-echo
-
 mkdir -p /data/lib/redis
 mkdir -p /data/logs/redis
 

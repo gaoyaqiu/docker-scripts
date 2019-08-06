@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  php-fpm: 
+    container_name: php-fpm
+    restart: always
+    privileged: true
+    build:
+      context: ./
+      dockerfile: ./php/Dockerfile
+    volumes:
+      - /Users/gaoyaqiu/git/vchangyi/crs-backend:/var/www/html
+    networks:
+     - dev-net
+
+  nginx:
+    depends_on:
+      - php-fpm
+    container_name: nginx
+    restart: always
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./logs:/var/log/nginx
+    networks:
+     - dev-net
+networks:
+  dev-net:
+    driver: bridge
+
+    
+    
