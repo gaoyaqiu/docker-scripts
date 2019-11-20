@@ -21,9 +21,13 @@ Hint: git checkout v11.3.0-ee
 
 ### 备份
 #### 手动备份
-在 gitlab 服务器上执行如下命令进行备份
+在 gitlab 服务器上执行如下命令进行备份(非 docker 安装)
 ```
 gitlab-rake gitlab:backup:create
+```
+如果是 docker 安装的 gitlab 请通过 docker 命令来执行，如：
+```
+docker exec -it gitlab gitlab-rake gitlab:backup:create
 ```
 执行完成之后会在，备份文件存放在 gitlab 的 data/backup/ 目录下，如：`1574241568_2019_11_20_11.3.0-ee_gitlab_backup.tar`
 #### 定时备份
@@ -50,7 +54,7 @@ echo -e $time "备份 gitlab 代码结束\n" >> /data/apps/gitlab/script/gitlab-
 ```
 然后 crontab 修改如下
 ```
-0 2 * * * /data/apps/gitlab/script/gitlab.backup > /dev/null 2>&1 &
+0 2 * * * /data/apps/gitlab/script/gitlab-backup.sh > /dev/null 2>&1 &
 ```
 > 别忘了要 reload
 
@@ -59,7 +63,7 @@ echo -e $time "备份 gitlab 代码结束\n" >> /data/apps/gitlab/script/gitlab-
 ```
 docker exec -it gitlab gitlab-rake gitlab:backup:restore BACKUP=1574241568_2019_11_20_11.3.0-ee
 ```
-> 1574241568_2019_11_20_11.3.0-ee 为备份之后的唯一版本号
+> 1574241568_2019_11_20_11.3.0-ee 为备份之后的唯一版本号，非 docker 安装的话，直接在服务器上执行 `gitlab-rake gitlab:backup:restore BACKUP=1574241568_2019_11_20_11.3.0-ee` 即可
 
 ## 将工程代码更新为新的 gitlab 仓库地址
 * 修改远程仓库地址
