@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ee:11.3.0-ee.0'
+    container_name: gitlab
+    restart: always
+    hostname: 'gitlab.localhost.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://192.168.0.132'
+        # Add any other gitlab.rb configuration here, each on its own line
+        gitlab_rails['time_zone'] = 'Asia/Shanghai'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        # backup setting
+        gitlab_rails['manage_backup_path'] = true
+        gitlab_rails['backup_path'] = "/var/opt/gitlab/backups"
+        gitlab_rails['backup_archive_permissions'] = 0644
+        # 备份保留时间 604800 = 7天
+        gitlab_rails['backup_keep_time'] = 604800
+        # email setting
+        gitlab_rails['smtp_enable'] = true
+        gitlab_rails['smtp_address'] = "smtp.exmail.qq.com"
+        gitlab_rails['smtp_port'] = 465
+        gitlab_rails['smtp_user_name'] = "alarm@51moneygo.com"
+        gitlab_rails['smtp_password'] = "51moneygo@2019"
+        gitlab_rails['smtp_authentication'] = "login"
+        gitlab_rails['smtp_enable_starttls_auto'] = true
+        gitlab_rails['smtp_tls'] = true
+        gitlab_rails['gitlab_email_from'] = 'alarm@51moneygo.com'
+    ports:
+      - '8899:80'
+      - '2222:22'
+    volumes:
+      - './config:/etc/gitlab'
+      - './logs:/var/log/gitlab'
+      - './data:/var/opt/gitlab'

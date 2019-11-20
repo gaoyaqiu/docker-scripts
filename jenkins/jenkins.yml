@@ -1,13 +1,13 @@
 version: '2'
 services:
   jenkins:
-    image: jenkinsci/blueocean
-    container_name: jenkins-blueocea
+    image: jenkins/jenkins:lts
+    container_name: jenkins
     restart: unless-stopped
     environment:
       TZ: 'Asia/Shanghai'
     ports:
-      - 49001:8080
+      - 49000:8080
       - 50000:50000
     # uncomment for docker in docker
     #privileged: true
@@ -18,6 +18,6 @@ services:
         # mount docker sock and binary for docker in docker (only works on linux)
         - /var/run/docker.sock:/var/run/docker.sock
         - /usr/bin/docker:/usr/bin/docker
-        - /usr/local/jdk1.8.0_162:/usr/local/jdk1.8.0_162
-        - /usr/local/apache-maven-3.6.0:/usr/local/apache-maven-3.6.0
+        - /usr/local/jdk1.8.0_211:/usr/local/jdk1.8.0_211
+        - /usr/local/maven-3.6.2:/usr/local/maven-3.6.2
         - /root/.m2:/root/.m2

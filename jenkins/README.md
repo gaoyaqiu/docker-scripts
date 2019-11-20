@@ -1,8 +1,5 @@
-# docker-scripts
-记录用到的一些docker脚本
-
-## jenkins
-### 以docker方式安装
+# jenkins
+## 以docker方式安装
 ```shell
 cd jenkins
 docker-compose -f jenkins.yml up -d
