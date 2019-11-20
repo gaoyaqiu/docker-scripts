@@ -29,7 +29,7 @@ gitlab-rake gitlab:backup:create
 ```
 docker exec -it gitlab gitlab-rake gitlab:backup:create
 ```
-执行完成之后会在，备份文件存放在 gitlab 的 data/backup/ 目录下，如：`1574241568_2019_11_20_11.3.0-ee_gitlab_backup.tar`
+执行完成之后，备份文件存放在 gitlab 的 data/backup/ 目录下，如：`1574241568_2019_11_20_11.3.0-ee_gitlab_backup.tar`，不知道 data 目录在哪的也没关系，直接通过文件名搜一下就行了。
 #### 定时备份
 
 * 将备份的定时任务加入到 crontab 中
