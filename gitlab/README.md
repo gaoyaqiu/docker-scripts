@@ -39,9 +39,9 @@ crontab -e
 // 设置以下命令
 0 1 * * * /usr/bin/docker exec -it gitlab gitlab-rake gitlab:backup:create
 ```
-* 重新加载 crontab
+* 重启 crontab
 ```
-/sbin/service crond reload
+ systemctl restart crond
 ```
 但是在生产环境中的话，对于定时任务可能需要记录下执行日志，否则也不知道任务执行情况，我这边给个简单的脚本供参考:
 ```
@@ -56,7 +56,7 @@ echo -e $time "备份 gitlab 代码结束\n" >> /data/apps/gitlab/script/gitlab-
 ```
 0 2 * * * /data/apps/gitlab/script/gitlab-backup.sh > /dev/null 2>&1 &
 ```
-> 别忘了要 reload
+> 别忘了重启 crontab
 
 ### 恢复
 将备份文件拷贝到 gitlab 新服务器对应的 backup 下，然后在新服务下执行如下命令来恢复
@@ -71,3 +71,28 @@ docker exec -it gitlab gitlab-rake gitlab:backup:restore BACKUP=1574241568_2019_
 git remote set-url origin 新的仓库地址
 ```
 最后提交代码试下吧。
+
+## 邮件测试
+### 发送邮件
+* 进入 gitlab 服务器，或者 docker 容器，进入控制台
+```
+gitlab-rails console
+```
+* 发送测试邮件
+```
+Notify.test_email('接收方邮件地址','邮件标题','邮件内容').deliver_now
+```
+### 发送邮件错误问题排查
+* 进入控制台
+```
+gitlab-rails console production
+```
+* 查看 method 是否为 :smtp
+```
+ActionMailer::Base.delivery_method
+```
+* 查看邮件配置是否正确
+```
+ActionMailer::Base.smtp_settings
+```
+> 一般都是配置错误，修正即可
