@@ -96,3 +96,7 @@ ActionMailer::Base.delivery_method
 ActionMailer::Base.smtp_settings
 ```
 > 一般都是配置错误，修正即可
+
+
+## 参考
+* [install-gitlab-using-docker-compose](https://docs.gitlab.com/omnibus/docker/#install-gitlab-using-docker-compose "install-gitlab-using-docker-compose")
