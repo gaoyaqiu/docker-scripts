@@ -15,6 +15,7 @@ services:
     volumes:
         # enable persistent volume (warning: make sure that the local jenkins_home folder is created)
         - /data/apps/jenkins/jenkins_home:/var/jenkins_home
+        - /root/.ssh:/var/jenkins_home/.ssh
         # mount docker sock and binary for docker in docker (only works on linux)
         - /var/run/docker.sock:/var/run/docker.sock
         - /usr/bin/docker:/usr/bin/docker

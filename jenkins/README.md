@@ -68,6 +68,7 @@ vi /data/apps/jenkins/jenkins_home/users/admin_2382922178606610043/config.xml
 * Git Parameter
 * Extended Choice Parameter
 * Gitlab
+* Ansible
 * Kubernetes
 * Kubernetes Continuous Deploy
 
@@ -80,3 +81,20 @@ vi /data/apps/jenkins/jenkins_home/users/admin_2382922178606610043/config.xml
 解决：
     原因是通过apt/yum安装的docker采用的是动态链接编译的，还依赖其它的so文件，并没有都mount到容器中，所以在jenkis容器中调用不到宿主机的docker命令, 需要通过源码重新安装docker即可: https://docs.docker.com/install/linux/docker-ce/binaries/
 
+## 使用
+* 配置JDK
+* 配置Maven
+* 添加 Git 私钥
+进入 Jenkins -> Credentials -> System -> Global credentials 页面中添加凭据，配置 jenkins 私钥
+> jenkins 容器里存放密钥的目录是在 `/var/jenkins_home/.ssh/`，所以容器启动时会将宿主机上的密钥目录映射到容器中 `/root/.ssh:/var/jenkins_home/.ssh`
+* 在 gitlab 中创建 jenkins 用户，并将公钥添加进去
+
+## Ansible
+
+当容器中的 jenkins 需要使用 Ansible 进行自动化部署时，发现无法挂载宿主机上的 ansible
+解决：
+   在 jenkins 容器中安装了 ansible 之后，重新打包新的镜像，后面使用新的镜像即可
+> 使用 Ansible 作为自动化工具时，需要在部署的机器上安装 Python 的 Docker 依赖库
+```
+pip install docker -i https://pypi.doubanio.com/simple/
+```
