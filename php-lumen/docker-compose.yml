@@ -2,6 +2,8 @@ version: '3'
 
 services:
   php-fpm: 
+    depends_on:
+      - mysql
     container_name: php-fpm
     restart: always
     privileged: true
@@ -9,7 +11,7 @@ services:
       context: ./
       dockerfile: ./php/Dockerfile
     volumes:
-      - /Users/gaoyaqiu/git/vchangyi/crs-backend:/var/www/html
+      - ../:/var/www/html
       - ./php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ./logs:/var/log/php
     networks:
@@ -27,9 +29,30 @@ services:
       - 80:80
       - 443:443
     volumes:
+      - ../:/var/www/html
       - ./logs:/var/log/nginx
     networks:
      - dev-net
+  mysql:
+    image: mysql:5.7.21
+    container_name: mysql
+    command: [
+      'mysqld',
+      '--innodb-buffer-pool-size=20M',
+      '--character-set-server=utf8',
+      '--collation-server=utf8_general_ci',
+      '--default-time-zone=+8:00',
+      '--lower-case-table-names=1'
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: ok
+    ports:
+      - "3307:3306"
+    restart: always
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      - dev-net
 networks:
   dev-net:
     driver: bridge
