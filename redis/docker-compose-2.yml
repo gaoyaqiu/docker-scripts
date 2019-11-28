@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:4.0.14
+    container_name: redis
+    ports:
+        - 6379:6379
+    command: redis-server --port 6379 --requirepass hello --appendonly yes
+    restart: always
+    volumes:
+      - ./data:/data
+    environment:
+      - TZ=Asia/Shanghai
+      - LANG=en_US.UTF-8
