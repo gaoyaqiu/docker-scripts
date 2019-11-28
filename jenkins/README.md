@@ -86,7 +86,6 @@ vi /data/apps/jenkins/jenkins_home/users/admin_2382922178606610043/config.xml
 * 配置Maven
 * 添加 Git 私钥
 进入 Jenkins -> Credentials -> System -> Global credentials 页面中添加凭据，配置 jenkins 私钥
-> jenkins 容器里存放密钥的目录是在 `/var/jenkins_home/.ssh/`，所以容器启动时会将宿主机上的密钥目录映射到容器中 `/root/.ssh:/var/jenkins_home/.ssh`
 * 在 gitlab 中创建 jenkins 用户，并将公钥添加进去
 
 ## Ansible
