@@ -1,0 +1,30 @@
+---
+- name: if health check failed, roll back
+  command: cat /tmp/{{app_name}}_last_success.txt
+  register: last_success
+
+- set_fact:
+    last_success_tag: "{{last_success.stdout}}"
+
+- name: remove failed container
+  docker_container:
+    name: "{{app_name}}"
+    state: absent
+
+- name: start new container with historical version
+  docker_container:
+    name:  "{{app_name}}"
+    image: "{{repository}}:{{last_success_tag}}"
+    restart_policy: always
+    network_mode: "host"
+    ports:
+      - 8096:8096
+    env:
+      SPRING_PROFILES_ACTIVE: "{{env}}"
+      JAVA_OPTS: "{{java_opts}}"
+    volumes:
+      - "/data/logs:/data/logs"
+      - "/usr/local/jdk1.8.0_211:/opt/jdk1.8.0_162"
+
+- fail:
+    msg: "Deploy to {{tag}} failed, roll back to last success {{last_success_tag}}"

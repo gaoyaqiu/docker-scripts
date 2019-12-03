@@ -1,0 +1,135 @@
+pipeline {
+  agent any
+
+  tools {
+    jdk 'jdk-8u211'
+    maven 'mvn-3.6.2'
+  }
+
+  environment {
+    _project = "${params.project}"
+    _registry = "${env.g_docker_registry}/${_project}-${params.environment}"
+    _version = new Date().format('yyyyMMddhhmmss')
+  }
+
+  parameters {
+    choice (
+      name: 'project',
+      choices: 'test',
+      description: '请选择发布的系统'
+    )
+
+    string (
+      name: 'version', 
+      defaultValue: 'master', 
+      description: '发布版本'
+    )
+
+    choice (
+      name: 'environment',
+      choices: 'test\nprod',
+      description: '请选择发布的环境'
+    )
+
+    choice (
+      name: 'hosts',
+      choices: """test
+        prod
+        prod-1
+        prod-2
+      """,
+      description: '请选择发布的服务器'
+    )
+
+    string (
+      name: 'memory',
+      defaultValue: '500M',
+      description: 'JVM 内存配置，默认 500M，请根据服务器内存大小合理分配'
+    )
+  }
+
+  stages {
+    stage("Check Version") {
+      steps {
+        script {
+          if (!params.version.trim()) {
+            error "版本号不能为空"
+            return
+          }
+
+          if (params.version != 'master') {
+            // 如果发布的不是 master 分支，就使用 git tag 自定义版本号
+            _version = params.version
+          }
+        }
+      }
+    }
+     
+    stage("Checkout Code") {
+      steps {
+        deleteDir()
+        checkout([
+          $class: 'GitSCM', 
+          branches: [[name: "${params.version}"]], 
+          doGenerateSubmoduleConfigurations: false, 
+          extensions: [], 
+          submoduleCfg: [], 
+          userRemoteConfigs: [[credentialsId: '16f0b26e-46ac-4215-993b-8b2312e66f00', url: 'ssh://git@xxxxxxx/xxxx.git']]
+        ])
+      }
+    }
+
+    stage("Maven Build") {
+      steps {
+        sh 'ls'
+        sh 'mvn -version'
+        sh 'mvn clean package -Dmaven.test.skip=true'
+      }
+    }
+
+    stage("Push Image To Aliyun") {
+      steps {
+        dir("${_project}"){
+            script {
+              withDockerRegistry(credentialsId: 'aliyun-docker', url: "${env.g_docker_registry_url}") {
+                sh "docker build -t ${_registry}:${_version} ."
+                sh "docker push ${_registry}:${_version}"
+                sh "docker rmi ${_registry}:${_version}"
+              }
+            }
+        }
+      }
+    }
+
+    stage("Deploy") {
+      steps {
+        sh "scripts/deploy ${params.environment} ${_project} ${_version} ${_registry} ${params.memory} ${params.hosts}"
+      }
+    }
+  }
+
+  post {
+    success {
+     script {
+       send_email_notification("${_project}", "SUCCESS")
+     }
+    }
+    failure {
+       script {
+          send_email_notification("${_project}", "FAILURE")
+       }
+    }
+  }
+}
+
+def send_email_notification(String project_name, String status){
+  emailext (
+    subject: "[构建通知]：${project_name} - Build ${status}! # ${env.BUILD_NUMBER}", 
+    to: 'gyq30494613@gmail.com',
+    body: """
+      <p>EXECUTED: Job <b>${env.JOB_NAME}:${env.BUILD_NUMBER}</b></p>
+      <p>View console output at <a href="${env.BUILD_URL}">${env.JOB_NAME}:${env.BUILD_NUMBER}</a></p>
+    """, 
+    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+  )
+}

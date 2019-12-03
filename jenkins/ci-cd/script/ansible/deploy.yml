@@ -1,0 +1,14 @@
+---
+- hosts: Server
+  remote_user: root
+# 允许升级权限
+  become: yes
+# 控制一次只更新1台机器
+  serial: 1
+  vars:
+    - repository: "{{repository}}"
+    - tag: "{{tag}}"
+    - app_name: "{{project}}"
+    - java_opts: "{{java_opts}}"
+  roles:
+    - deploy

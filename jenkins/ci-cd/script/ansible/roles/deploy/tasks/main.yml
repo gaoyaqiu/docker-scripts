@@ -1,0 +1,45 @@
+---
+- name: pull image
+  command: docker pull "{{repository}}:{{tag}}"
+
+- name: remove old container
+  docker_container:
+    name: "{{app_name}}"
+    state: absent
+
+- name: start new service container
+  docker_container:
+    name:  "{{app_name}}"
+    image: "{{repository}}:{{tag}}"
+    restart_policy: always
+    network_mode: "host"
+    ports:
+      - 8096:8096
+    env:
+      SPRING_PROFILES_ACTIVE: "{{env}}"
+      JAVA_OPTS: "{{java_opts}}"
+    volumes:
+      - "/data/logs:/data/logs"
+      - "/usr/local/jdk1.8.0_211:/opt/jdk1.8.0_162"
+
+- name: Wait for server to pass health-checks
+  health_check:
+    url: "http://localhost:8096/actuator/health"
+  register: result
+
+- name: copy remove_old_mage script file
+  copy: src=../remove_old_image dest=/tmp/remove_old_image mode="+x"
+  when: result.status == "healthy"
+
+- name: remove old image
+  command: /tmp/remove_old_image {{app_name}} {{repository}}
+  when: result.status == "healthy"
+
+- name: health check passed, record it
+  template:
+    src: last_success.txt.j2
+    dest: "/tmp/{{app_name}}_last_success.txt"
+  when: result.status == "healthy"
+
+- include: rollback.yml
+  when: result.status == "faulty"

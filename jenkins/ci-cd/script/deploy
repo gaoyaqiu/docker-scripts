@@ -1,0 +1,59 @@
+#! /bin/bash
+set -e
+
+env=${1:-dev}
+deploy_project=$2
+tag=${3:-local}
+repository=$4
+jvm_size=${5:-500M}
+hosts=$6
+jvm_directory="/data/logs/jvm"
+
+# 禁用在首次连接服务器时检查 host key 的信息提示
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+# 设置jvm核心参数
+java_opts="-server
+ -server
+ -Xmx${jvm_size}
+ -Xms${jvm_size}
+ -Xss512k
+ -XX:NewRatio=2
+ -XX:+UseConcMarkSweepGC
+ -XX:+CMSClassUnloadingEnabled
+ -XX:CMSInitiatingOccupancyFraction=70
+ -XX:SoftRefLRUPolicyMSPerMB=0
+ -XX:MaxTenuringThreshold=7
+ -XX:+UseCMSInitiatingOccupancyOnly
+ -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses
+ -XX:GCTimeRatio=19
+ -Xnoclassgc
+ -XX:+HeapDumpOnOutOfMemoryError
+ -XX:HeapDumpPath=${jvm_directory}
+ -XX:+PrintGCDetails
+ -XX:+PrintGCDateStamps
+ -XX:+UseGCLogFileRotation
+ -XX:NumberOfGCLogFiles=8
+ -XX:GCLogFileSize=100M
+ -Xloggc:${jvm_directory}/${deploy_project}.log
+ "
+
+# Ansible playbook编排任务
+# -i 自定义主机，非必选项，默认将引用/etc/ansible/hosts的参数
+# -e 选项传入参数
+# --extra-vars 选项指定额外的参数
+# --limit 限制执行主机
+if [[ "${hosts}" =~ "-" ]]; then
+    # 发布指定服务器
+    ansible-playbook \
+      -i scripts/ansible/environments/${env}/inventory.ini \
+      -e tag=${tag} scripts/ansible/deploy.yml \
+      --limit ${hosts} \
+      --extra-vars "{'repository':'${repository}', 'project':'${deploy_project}', 'java_opts':'${java_opts}'}"
+else
+    # 发布分组下的所有机器
+    ansible-playbook \
+      -i scripts/ansible/environments/${env}/inventory.ini \
+      -e tag=${tag} scripts/ansible/deploy.yml \
+      --extra-vars "{'repository':'${repository}', 'project':'${deploy_project}', 'java_opts':'${java_opts}'}"
+fi
