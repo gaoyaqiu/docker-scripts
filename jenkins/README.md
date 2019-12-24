@@ -80,6 +80,20 @@ vi /data/apps/jenkins/jenkins_home/users/admin_2382922178606610043/config.xml
 2. 容器中的jenkins执行docker命令提示 docker not found
 解决：
     原因是通过apt/yum安装的docker采用的是动态链接编译的，还依赖其它的so文件，并没有都mount到容器中，所以在jenkis容器中调用不到宿主机的docker命令, 需要通过源码重新安装docker即可: https://docs.docker.com/install/linux/docker-ce/binaries/
+3. 当容器中的 jenkins 需要使用 Ansible 进行自动化部署时，发现无法挂载宿主机上的 ansible
+解决：
+   在 jenkins 容器中安装了 ansible 之后，重新打包新的镜像，后面使用新的镜像即可, 但是在使用 Ansible 作为自动化工具时，需要在部署的机器上安装 Python 的 Docker 依赖库，否则报如下错误
+   ```
+      Failed to import the required Python library (Docker SDK for Python: docker (Python >= 2.7) or docker-py (Python 2.6)) on gagago's Python /usr/bin/python. Please read module documentation and install in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter, please consult the documentation on ansible_python_interpreter, for example via `pip install docker` or `pip install docker-py` (Python 2.6). The error was: No module named requests.exceptions"}
+   ```
+安装命令如下：
+
+```
+yum -y install epel-release
+yum -y install python-pip
+pip install --upgrade pip
+pip install docker -i https://pypi.doubanio.com/simple/
+```
 
 ## 使用
 * 配置JDK
@@ -88,12 +102,3 @@ vi /data/apps/jenkins/jenkins_home/users/admin_2382922178606610043/config.xml
 进入 Jenkins -> Credentials -> System -> Global credentials 页面中添加凭据，配置 jenkins 私钥
 * 在 gitlab 中创建 jenkins 用户，并将公钥添加进去
 
-## Ansible
-
-当容器中的 jenkins 需要使用 Ansible 进行自动化部署时，发现无法挂载宿主机上的 ansible
-解决：
-   在 jenkins 容器中安装了 ansible 之后，重新打包新的镜像，后面使用新的镜像即可
-> 使用 Ansible 作为自动化工具时，需要在部署的机器上安装 Python 的 Docker 依赖库
-```
-pip install docker -i https://pypi.doubanio.com/simple/
-```
