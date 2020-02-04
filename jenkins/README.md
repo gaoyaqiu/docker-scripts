@@ -95,6 +95,24 @@ pip install --upgrade pip
 pip install docker -i https://pypi.doubanio.com/simple/
 ```
 
+4. Jenkins 无权限操作 gitlab
+```
+stderr: Permission denied (publickey).
+fatal: Could not read from remote repository.
+```
+解决：
+1. 在 jenkins 后台，Jenkins -> 凭据 -> 系统 -> 全局凭据 中，配置 jenkins 这台机器的私钥，
+从 ~/.ssh/id_rsa 中拷贝过来
+2. 在 gitlab 中配置(创建) jenkins 用户，将公钥添加进来 ~/.ssh/id_rsa.pub
+3. 这样 jenkins 机器才有权限读取代码
+
+5. jenkins 机器没有操作部署应用机器权限
+```
+Failed to connect to the host via ssh: Warning: Permanently added 'xx.xx.xx.xx' (ECDSA) to the list of known hosts.\r\nPermission denied 
+```
+解决：
+需要将 jenkins 机器的公钥，配置到应用机器的 .ssh/authorized_keys 文件下即可。
+
 ## 使用
 * 配置JDK
 * 配置Maven
