@@ -1,0 +1,23 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8.0.16
+    container_name: mysql
+    command: [
+      'mysqld',
+      '--innodb-buffer-pool-size=20M',
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_general_ci',
+      '--default-time-zone=+8:00',
+      '--lower-case-table-names=1',
+      '--event_scheduler=ON',
+      '--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: '@WFZtoP@TVyo48f#'
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "3306:3306"
+    restart: always
+    volumes:
+      - ./mysql/data:/var/lib/mysql
