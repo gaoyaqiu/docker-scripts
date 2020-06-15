@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  yapi:
+    image: zy/yapi:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: yapi
+    environment:
+      - VERSION=1.9.2
+      - HOME=/home
+      - LOG_PATH=/tmp/yapi.log
+      - MY_PORT=3000
+      - MY_ACOUNT=admin@admin.com
+      - MY_DB_SERVER=mongo
+      - MY_DB_NAME=yapi
+      - MY_DB_PORT=27017
+      - MY_USER=yapi
+      - MY_PASS=yapi
+      - MY_AUTH=yapi
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - /data/apps/yapi/install:/home/install
+      - ./log:/home/log
+    depends_on:
+      - mongo
+    networks:
+      - back-net
+  mongo:
+    image: mongo:3.4.9
+    container_name: mongo
+    restart: always
+    ports:
+      - 27027:27017
+    volumes:
+      - ./mongodb:/data/db
+    networks:
+      - back-net
+
+networks:
+  back-net:
