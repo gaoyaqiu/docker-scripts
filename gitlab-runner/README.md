@@ -10,14 +10,24 @@ gitlab/gitlab-runner:latest
 
 # 注册
 ```
-docker exec gitlab-runner gitlab-runner register -n \
-       --url http://192.168.88.3/ \
-       --registration-token JBsEnXPs7zEuLQj91aC5 \
-       --tag-list runInDk \
-       --executor docker \
-       --docker-image docker \
-       --docker-volumes /var/run/docker.sock:/var/run/docker.sock \
-       --description "runInDk"
+[root@iZbp1adzdewrn6h8agutzfZ ~]# docker exec -it gitlab-runner bash
+root@9f8f80cd2824:/# gitlab-runner register
+Running in system-mode.                            
+                                                   
+Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com/):
+http://x.x.x.x:x/
+Please enter the gitlab-ci token for this runner:
+xxxxxxxxxxxxx
+Please enter the gitlab-ci description for this runner:
+[9f8f80cd2824]: demo-test
+Please enter the gitlab-ci tags for this runner (comma separated):
+demo-test
+Registering runner... succeeded                     runner=PT4sT2zx
+Please enter the executor: parallels, shell, ssh, docker-ssh+machine, kubernetes, docker, docker-ssh, virtualbox, docker+machine:
+docker
+Please enter the default Docker image (e.g. ruby:2.1):
+kevinyan001/git-runner:php7.1-node10
+Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded! 
 ```
 
 # 配置
@@ -38,6 +48,7 @@ Welcome to Alibaba Cloud Elastic Compute Service !
 Settings > CI/CD > Variables 添加：
 `SSH_PRIVATE_KEY`、`SSH_KNOWN_HOSTS` 两个变量
 也就是步骤一中创建的私钥及known_hosts文件内容
+> 需要切换到 gitlab-runner 用户
 
 3. 测试脚本如下：
 ```
