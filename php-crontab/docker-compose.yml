@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  php-fpm-test:
+#    depends_on:
+     # - mysql
+    container_name: php-fpm-test
+    restart: always
+#    privileged: true
+    build:
+      context: ./php/
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/var/www/html
+      - ./php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./logs:/var/log/php
+    networks:
+      - dev-test-net
+
+  nginx-test:
+    depends_on:
+      - php-fpm-test
+    container_name: nginx-test
+    restart: always
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - ../:/var/www/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logs:/var/log/nginx
+    networks:
+      - dev-test-net
+
+#  mysql:
+#    image: mysql:5.7.21
+#    container_name: mysql
+#    command: [
+#      'mysqld',
+#      '--innodb-buffer-pool-size=20M',
+#      '--character-set-server=utf8',
+#      '--collation-server=utf8_general_ci',
+#      '--default-time-zone=+8:00',
+#      '--lower-case-table-names=1'
+#    ]
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ok
+#    ports:
+#      - "3307:3306"
+#    restart: always
+#    volumes:
+#      - ./mysql/data:/var/lib/mysql
+#    networks:
+#      - dev-net
+networks:
+  dev-test-net:
+    driver: bridge
+
+    
+
+    
