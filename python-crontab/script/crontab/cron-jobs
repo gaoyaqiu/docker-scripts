@@ -1,0 +1,5 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+0 16 * * * root . /etc/profile; cd /var/www/data/notice && python3.6 test.py >> /tmp/test.log 2>&1
+
