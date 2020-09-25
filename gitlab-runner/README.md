@@ -46,9 +46,9 @@ Welcome to Alibaba Cloud Elastic Compute Service !
 
 2. 在gitlab的CI/CD中配置环境变量
 Settings > CI/CD > Variables 添加：
-`SSH_PRIVATE_KEY`、`SSH_KNOWN_HOSTS` 两个变量
-也就是步骤一中创建的私钥及known_hosts文件内容
-> 需要切换到 gitlab-runner 用户
+`SSH_PRIVATE_KEY`、`SSH_KNOWN_HOSTS`、`SSH_SERVER` 三个变量
+也就是步骤一中创建的私钥及known_hosts文件内容，其中 `SSH_SERVER` 是为了`rsync`传文件连接服务器使用的，如：root@x.x.x.x
+> 需要切换到 gitlab-runner 用户 `su gitlab-runner`
 
 3. 测试脚本如下：
 ```
