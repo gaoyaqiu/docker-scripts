@@ -26,6 +26,8 @@ RUN apk del tzdata curl \
 RUN echo "" > /etc/crontabs/root \
   && echo "0 */5 * * * cd /var/www/html/test && php test.php > /dev/null 2>&1" >> /etc/crontabs/root
 
+COPY ./www.conf /usr/local/etc/php-fpm.d
+
 WORKDIR /var/www/html
 ADD start.sh /opt/start.sh
 RUN chmod +x /opt/start.sh
