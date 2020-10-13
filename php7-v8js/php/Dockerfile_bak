@@ -1,0 +1,48 @@
+FROM php:7.3.1-fpm-alpine
+LABEL maintainer="gyq"
+
+ENV TIMEZONE Asia/Shanghai
+ENV PHP_MEMORY_LIMIT 512M
+ENV MAX_UPLOAD 50M
+ENV PHP_MAX_FILE_UPLOAD 200
+ENV PHP_MAX_POST 100M
+
+# 解决 Alpine 镜像安装软件速度慢的问题
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+RUN apk update \
+    && apk add --no-cache tzdata \
+       curl \
+       libzip-dev \
+       libpng \
+       libpng-dev \
+       libjpeg-turbo \
+       libjpeg-turbo-dev \
+       freetype \
+       freetype-dev \
+       openssl \
+       openssl-dev \
+    && docker-php-ext-configure zip --with-libzip \
+    && docker-php-ext-install \
+                zip \
+                opcache \
+                pdo_mysql \
+    && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+    && echo "${TIMEZONE}" > /etc/timezone \
+    && rm -rf /var/cache/apk/*
+
+# install gd
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install gd
+
+RUN echo "" > /etc/crontabs/root \
+   #&& echo "0 */5 * * * cd /var/www/html/test && php test.php >> /tmp/test.log 2>&1" >> /etc/crontabs/root
+
+COPY ./www.conf /usr/local/etc/php-fpm.d
+
+WORKDIR /var/www/html
+ADD start.sh /opt/start.sh
+RUN chmod +x /opt/start.sh
+EXPOSE 9000
+CMD ["/bin/sh", "/opt/start.sh"]
+

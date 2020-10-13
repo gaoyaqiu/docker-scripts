@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+*/1 * * * * root . /etc/profile; cd /var/www/html/test && php test.php >> /tmp/test.log 2>&1
