@@ -1,0 +1,17 @@
+version: "3.6"
+
+services:
+  shadowsocks:
+    image: gaoqi/shadowsocks-libev
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: shadowsocks
+    ports:
+      - "12123:12123/tcp"
+      - "12123:12123/udp"
+    environment:
+      - METHOD=aes-256-gcm
+      - PASSWORD=123456789
+      - SERVER_PORT=12123
+    restart: always
