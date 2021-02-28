@@ -1,0 +1,13 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    command: --config /etc/mongo/mongod.conf
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - ./data:/data/db
+      - ./log:/var/log/mongodb
+      - ./config:/etc/mongo
