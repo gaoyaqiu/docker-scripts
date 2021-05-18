@@ -1,0 +1,18 @@
+version: "3.6"
+
+services:
+  v2ray:
+    container_name: v2ray
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - TAG=v4.39.1
+    
+    restart: always
+    ports:
+      - "20000:20000"
+    volumes:
+      - './config.json:/etc/v2ray/config.json'
+      - '/var/log/v2ray:/var/log/v2ray'
+    
