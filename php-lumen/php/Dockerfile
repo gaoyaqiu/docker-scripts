@@ -1,5 +1,4 @@
 FROM php:7.2-fpm-alpine
-LABEL maintainer="Gao Ya Qiu <gyq30494613@gmail.com>"
 
 # 修改镜像源
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories

@@ -8,6 +8,11 @@ docker run -dit \
 gitlab/gitlab-runner:latest
 ```
 
+# docker-compose 方式安装
+```
+docker-compose up -d --build
+```
+
 # 注册
 ```
 [root@iZbp1adzdewrn6h8agutzfZ ~]# docker exec -it gitlab-runner bash
@@ -52,6 +57,8 @@ Welcome to Alibaba Cloud Elastic Compute Service !
 Settings > CI/CD > Variables 添加：
 `SSH_PRIVATE_KEY`、`SSH_KNOWN_HOSTS`、`SSH_SERVER` 三个变量
 也就是步骤一中创建的私钥及known_hosts文件内容，其中 `SSH_SERVER` 是为了`rsync`传文件连接服务器使用的，如：root@x.x.x.x 
+
+> known_hosts 内容是第一步 ssh 之后生成的
 
 3. 测试脚本如下：
 ```

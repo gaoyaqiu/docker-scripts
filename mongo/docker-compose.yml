@@ -3,9 +3,11 @@ services:
   mongo:
     image: mongo:latest
     container_name: mongo
-    command: --config /etc/mongo/mongod.conf
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=654321
     ports:
-      - "27017:27017"
+      - "20000:27017"
     restart: always
     volumes:
       - ./data:/data/db
