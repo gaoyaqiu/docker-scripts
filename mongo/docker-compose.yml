@@ -9,7 +9,20 @@ services:
     ports:
       - "20000:27017"
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 256M
+        reservations:
+          memory: 256M
     volumes:
       - ./data:/data/db
       - ./log:/var/log/mongodb
       - ./config:/etc/mongo
+    networks:
+      - db-net
+
+networks:
+  db-net:
+    driver: bridge

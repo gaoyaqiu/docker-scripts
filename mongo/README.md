@@ -4,6 +4,7 @@
 ```
 // 编译
 docker-compose up -d --build
+docker-compose --compatibility up -d --build
 
 // 进入容器
 docker exec -it mongo bash
