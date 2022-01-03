@@ -7,15 +7,15 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=654321
     ports:
-      - "20000:27017"
+      - "27017:27017"
     restart: always
     deploy:
       resources:
         limits:
           cpus: "1"
-          memory: 256M
+          memory: 512M
         reservations:
-          memory: 256M
+          memory: 512M
     volumes:
       - ./data:/data/db
       - ./log:/var/log/mongodb

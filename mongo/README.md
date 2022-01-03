@@ -23,4 +23,7 @@ mongo admin -u admin -p 654321
 use test
 // 创建普通用户并给用户赋予访问test库的权限
 db.createUser({ user: 'test', pwd: '123456', roles: [ { role: "readWrite", db: "test" } ] })
+
+// 修改密码
+db.changeUserPassword('root', 'testtest')
 ```
