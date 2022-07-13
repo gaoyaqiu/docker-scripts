@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    # env_file: config.env
+    ports:
+      - 7688:3000
+    volumes:
+      - ./data:/var/lib/grafana
+      - ./etc:/etc/grafana/provisioning
+    restart: always
+    networks:
+      - grafana-net
+
+networks:
+  grafana-net:
+    driver: bridge
