@@ -8,9 +8,13 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 80:80
+      - "80:80"
     networks:
       - dev-net
+    volumes:
+      - ../data:/var/wwwroot
+      - ./conf.d:/etc/nginx/conf.d
+      - ./nginx.conf:/etc/nginx/nginx.conf
 
 networks:
   dev-net:
